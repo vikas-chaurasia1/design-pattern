@@ -1,0 +1,55 @@
+interface PaymentStrategy{
+	public PaymentResponse payMoney(PaymentRequest req);
+}
+
+@Component("UPI")
+class UpiPayment implements PaymentStrategy{
+	
+	@Override
+	public PaymentResponse payMoney(PaymentRequest req){
+		//..
+		return new PaymentResponse("Success","upi_txn_id");
+	}
+}
+
+@Component("CARD")
+class CardPayment implements PaymentStrategy{
+	
+	@Override
+	public PaymentResponse payMoney(PaymentRequest req){
+		//...
+		return new PaymentResponse("Success","cardtxn_id");
+	}
+}
+
+@Service
+class PaymentService {
+	
+	private Map<String,PaymentStrategy> stratgies;
+	
+	//spring will automatically inject the name mapping according to component name;
+	public PaymentService (Map<String,PaymentStrategy> stratgies){
+		this.stratgies=stratgies;
+	}
+	
+	public PaymentResponse processPayment(PaymentRequest request){
+		PaymentStrategy strategy=stratgies.get(request.getPaymentMethod());
+		return strategy.payMoney(request);
+	}
+	
+}
+
+@RestController
+class PaymentController{
+	
+	private final PaymentService  paymentService;
+	public PaymentController(PaymentService paymentService){
+		this.paymentService=paymentService;
+	}
+	
+	
+	@Post("/pay")
+	public PaymentResponse doPayment(@RequestBody PaymentRequest request ){
+		return paymentService.processPayment(request);
+	}
+}
