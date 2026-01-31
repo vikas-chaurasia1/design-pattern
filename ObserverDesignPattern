@@ -1,0 +1,76 @@
+package com.example.demo.design;
+
+import java.util.ArrayList;
+import java.util.List;
+
+interface Subject{
+    public void addObserver(Observer observer);
+    public void removeObserver(Observer observer);
+    public void notifyAllObserver(String message);
+}
+
+interface Observer{
+    public void update(String message);
+}
+
+class YoutubeChannel implements Subject{
+    List<Observer> observerList=new ArrayList<>();
+    private final String channelName;
+
+    YoutubeChannel(String channelName) {
+        this.channelName = channelName;
+
+    }
+
+    @Override
+    public void addObserver(Observer observer){
+        observerList.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer){
+        observerList.remove(observer);
+    }
+
+    public void uploadVideo(String videoName){
+        System.out.println(channelName+" uploaded "+videoName);
+        notifyAllObserver(videoName);
+    }
+
+    @Override
+    public void notifyAllObserver(String message){
+        for(Observer observer:observerList){
+            observer.update(message);
+        }
+    }
+}
+
+class Subscriber implements Observer{
+
+    @Override
+    public void update(String message){
+        System.out.println("Updating received "+message);
+    }
+}
+
+
+
+public class ObserverPattern {
+    public static void main(String[] args){
+        System.out.println("Observer design pattern");
+        Observer sub1=new Subscriber();
+        Observer sub2=new Subscriber();
+        Observer sub3=new Subscriber();
+
+        YoutubeChannel channel=new YoutubeChannel("Chaurasia Ji");
+        channel.addObserver(sub1);
+        channel.addObserver(sub2);
+        channel.addObserver(sub3);
+
+        channel.uploadVideo("SpringBoot video uploaded");
+
+        channel.removeObserver(sub1);
+        channel.uploadVideo("Angular video uploaded");
+
+    }
+}
